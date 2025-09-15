@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="logo.png" type="image/png">
+    <title>FNaF: Pixel</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            transition: all 1s ease;
+            background-color: #000;
+            color: #b3b3b3;
+        }
+
+        .menu {
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.85);
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+            z-index: 10;
+            border: 1px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                0deg,
+                rgba(255, 0, 0, 0.1) 0%,
+                rgba(255, 0, 0, 0) 30%
+            );
+            pointer-events: none;
+        }
+
+        h1 {
+            color: #d3d3d3;
+            margin-bottom: 30px;
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+            font-weight: normal;
+            letter-spacing: 2px;
+        }
+
+        .btn {
+            display: block;
+            width: 200px;
+            padding: 12px;
+            margin: 15px auto;
+            font-size: 16px;
+            color: #b3b3b3;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            background-color: #262626;
+            color: #d3d3d3;
+            border-color: #555;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+        }
+
+        .btn::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .btn:hover::after {
+            left: 100%;
+        }
+
+        .about-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .about-content {
+            background-color: #111;
+            padding: 30px;
+            border-radius: 5px;
+            max-width: 600px;
+            color: #b3b3b3;
+            position: relative;
+            border: 1px solid #333;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.1);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #d3d3d3;
+        }
+
+        .night-mode {
+            background-color: rgba(0, 0, 0, 0.98);
+        }
+        
+        .game-screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .fade-in {
+            animation: fadeIn 2s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* VHS эффект */
+        .vhs-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            mix-blend-mode: overlay;
+            opacity: 0.15;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(255, 255, 255, 0.1),
+                    rgba(255, 255, 255, 0.1) 1px,
+                    transparent 1px,
+                    transparent 2px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.1),
+                    rgba(255, 255, 255, 0.1) 1px,
+                    transparent 1px,
+                    transparent 2px
+                );
+            animation: vhs-static 0.1s infinite;
+        }
+
+        @keyframes vhs-static {
+            0% { transform: translate(0, 0); }
+            20% { transform: translate(-1px, 1px); }
+            40% { transform: translate(1px, -1px); }
+            60% { transform: translate(1px, 1px); }
+            80% { transform: translate(-1px, -1px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* Эффект сканирующих линий */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%,
+                rgba(0, 0, 0, 0.25) 50%
+            );
+            background-size: 100% 4px;
+            opacity: 0.3;
+        }
+
+        /* Меню выбора ночи */
+        .nights-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 50;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .nights-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .night-btn {
+            width: 100px;
+            height: 100px;
+            background-color: #111;
+            border: 1px solid #333;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .night-btn:hover {
+            border-color: #555;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+        }
+
+        .night-btn.available {
+            background-color: #1a1a1a;
+        }
+
+        .night-btn.locked::after {
+            content: "🔒";
+            position: absolute;
+            font-size: 24px;
+            color: rgba(255, 0, 0, 0.7);
+        }
+
+        .night-number {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .night-title {
+            font-size: 14px;
+        }
+
+        .back-btn {
+            margin-top: 20px;
+        }
+
+.button-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    z-index: 200;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 15px 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+}
+
+.action-btn:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.action-btn:first-child {
+    border-right: none;
+}
+
+.action-btn:last-child {
+    border-left: none;
+}
+
+.fade-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    opacity: 0;
+    z-index: 500;
+    pointer-events: none;
+    transition: opacity 1s;
+}
+
+/* Добавьте этот стиль для кнопки в about-content */
+.about-content .btn {
+    width: 100%;
+    margin-top: 15px;
+    background-color: #2a0a0a;
+    border-color: #5a1a1a;
+}
+
+.about-content .btn:hover {
+    background-color: #3a1a1a;
+    border-color: #7a2a2a;
+}
+
+/* Стили для эффектов камеры */
+.camera-effects {
+    animation: cameraStatic 0.1s infinite;
+}
+
+@keyframes cameraStatic {
+    0% { opacity: 0.5; }
+    20% { opacity: 0.4; transform: translate(-1px, 1px); }
+    40% { opacity: 0.6; transform: translate(1px, -1px); }
+    60% { opacity: 0.5; transform: translate(1px, 1px); }
+    80% { opacity: 0.4; transform: translate(-1px, -1px); }
+    100% { opacity: 0.5; transform: translate(0, 0); }
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.puppet-meter-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 200px;
+    height: 30px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #333;
+    z-index: 200;
+    display: none;
+}
+
+.puppet-meter {
+    height: 100%;
+    width: 100%;
+    background-color: rgba(255, 0, 0, 0.5);
+    transition: width 0.1s linear;
+}
+
+.puppet-button {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    padding: 8px 15px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #333;
+    color: white;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    z-index: 200;
+    display: none;
+}
+
+/* Стили для фантома */
+.phantom {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 152; /* Поверх камеры */
+    pointer-events: none;
+    animation: pulse 0.5s infinite alternate;
+}
+
+/* Эффекты мерцания при атаке фантома */
+.flicker-effect {
+    animation: flicker 0.1s infinite;
+}
+
+@keyframes flicker {
+    0% { background-color: rgba(255, 0, 0, 0.8); }
+    10% { background-color: rgba(0, 0, 0, 0.9); }
+    20% { background-color: rgba(255, 69, 0, 0.7); }
+    30% { background-color: rgba(0, 0, 0, 0.8); }
+    40% { background-color: rgba(255, 0, 0, 0.6); }
+    50% { background-color: rgba(0, 0, 0, 0.9); }
+    60% { background-color: rgba(255, 99, 71, 0.7); }
+    70% { background-color: rgba(0, 0, 0, 0.8); }
+    80% { background-color: rgba(255, 0, 0, 0.5); }
+    90% { background-color: rgba(0, 0, 0, 0.9); }
+    100% { background-color: rgba(255, 0, 0, 0.7); }
+}
+
+.disabled-buttons {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.phantom-screamer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* Диалоговая система */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding-bottom: 20px;
+}
+
+.dialog-container {
+    width: 90%;
+    max-width: 800px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+}
+
+.dialog-character {
+    position: absolute;
+    bottom: 220px; /* Немного подняли выше */
+    left: 50%;
+    transform: translateX(-50%) scale(1.2); /* Увеличиваем на 20% */
+    height: 360px; /* Было max-height: 300px, теперь увеличили на 20% */
+    z-index: 2001;
+    filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.5));
+    object-fit: contain; /* Сохраняем пропорции */
+}
+
+.dialog-name {
+    color: #ff5555;
+    font-size: 18px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 3px #ff0000;
+}
+
+.dialog-text {
+    color: #dddddd;
+    font-size: 16px;
+    line-height: 1.5;
+    min-height: 60px;
+}
+
+.dialog-next {
+    text-align: right;
+    color: #aaaaaa;
+    font-size: 14px;
+    margin-top: 10px;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+.win-gif {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    z-index: 2000;
+    pointer-events: none;
+}
+
+    </style>
+</head>
+<body>
+    <div class="vhs-effect"></div>
+    <div class="scanlines"></div>
+
+    <!-- Аудио элементы -->
+    <audio id="clickSound" src="s_click.mp3" preload="auto"></audio>
+    <audio id="menuSound" src="s_menu.mp3" loop preload="auto"></audio>
+    <audio id="officeSound" src="s_office.mp3" loop preload="auto"></audio>
+    <audio id="randomSound" src="s_random1.mp3" preload="auto"></audio>
+    <audio id="savezoneSound" src="s_savezone.mp3" preload="auto"></audio>
+    <audio id="phantomSound" src="s_phantom.mp3" preload="auto"></audio>
+
+    <div class="menu" id="mainMenu">
+        <h1>FNaF: Pixel</h1>
+        <button class="btn" id="playBtn">ИГРАТЬ</button>
+        <button class="btn" id="aboutBtn">ОБ ИГРЕ</button>
+    </div>
+
+    <div class="nights-menu" id="nightsMenu">
+        <h2>ВЫБЕРИТЕ НОЧЬ</h2>
+        <div class="nights-container" id="nightsContainer">
+            <!-- Ночи будут добавлены через JS -->
+        </div>
+        <button class="btn back-btn" id="backBtn">НАЗАД</button>
+    </div>
+
+    <div class="about-overlay" id="aboutOverlay">
+        <div class="about-content">
+            <button class="close-btn" id="closeBtn">×</button>
+            <h2>ОБ ИГРЕ</h2>
+            <p>Это пиксельная адаптация культовой франшизы FNaF, автором которой является - Scott Cawthon. Это альтернативная вселенная, с новой историей. Сможешь ли ты выжить?</p>
+            <p>УПРАВЛЕНИЕ:</p>
+            <ul>
+                <li>Всё здесь управляется кликами по экрану</li>
+            </ul>
+            <p>СОВЕТЫ:</p>
+            <ul>
+                <li>Включите полноэкранный режим, это кнопка - F11. Темнота снаружи усилит страх внутри</li>
+                <li>Наденьте наушники - каждый шорох теперь будет прямо у вас в голове</li>
+                <li>Внимательно читайте все диалоги - они могут быть последними, что вы увидите</li>
+                <li>Здесь резкие звуки и мерцающий свет. Если вы уязвимы - бегите, пока не поздно</li>
+                <li>При странностях в игре - перезагрузитесь. Но уверены ли вы, что это баг?</li>
+                <li>Играть только на компьютере</li>
+            </ul>
+            <p>ВЕРСИЯ: FULL</p>
+            <button class="btn" id="clearProgressBtn" style="margin-top: 20px;">Очистить прогресс</button>
+            <p style="margin-top: 20px; font-size: 12px; color: #666;">© 2025 Автор проекта - Jora young</p>
+            <p style="margin-top: 20px; font-size: 12px; color: #666;">Телеграм канал проекта - https://t.me/fnafpixel</p>
+        </div>
+    </div>
+    
+    <div class="game-screen" id="gameScreen"></div>
+
+<!-- Диалоговая система -->
+<div class="dialog-overlay" id="dialogOverlay" style="display: none;">
+    <img class="dialog-character" id="dialogCharacter" src="" alt="Character">
+    <div class="dialog-container">
+        <div class="dialog-name" id="dialogName"></div>
+        <div class="dialog-text" id="dialogText"></div>
+        <div class="dialog-next">Кликните чтобы продолжить...</div>
+    </div>
+</div>
+
+    <script>
+// Подтверждение выхода при закрытии страницы во время игры
+window.addEventListener('beforeunload', function(e) {
+    const gameScreen = document.getElementById('gameScreen');
+    if (gameScreen && gameScreen.style.display === 'block') {
+        e.preventDefault();
+        e.returnValue = 'Вы точно хотите выйти?';
+        return e.returnValue;
+    }
+});
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const mainMenu = document.getElementById('mainMenu');
+        const playBtn = document.getElementById('playBtn');
+        const aboutBtn = document.getElementById('aboutBtn');
+        const aboutOverlay = document.getElementById('aboutOverlay');
+        const closeBtn = document.getElementById('closeBtn');
+        const nightsMenu = document.getElementById('nightsMenu');
+        const nightsContainer = document.getElementById('nightsContainer');
+        const backBtn = document.getElementById('backBtn');
+        const clearProgressBtn = document.getElementById('clearProgressBtn');
+        const body = document.body;
+        const gameScreen = document.getElementById('gameScreen');
+        let currentNight = null;
+        let isInCloset = false;
+        let closetTimer = null;
+        let fadeOverlay = null;
+        let buttonContainer = null;
+	let cameraBtn = null;
+	let closetBtn = null;
+        let isCameraOpen = false;
+	let cameraImage = null;
+	let cameraAnimationInterval = null;
+        let puppetTimer = null;
+	let puppetMeter = 0;
+	let puppetMeterInterval = null;
+	let isPuppetActive = false;
+	let isHoldingPuppetButton = false;
+	const puppetMaxMeter = 25; // 25 секунд = полная шкала
+	const puppetChargeRate = 2; // 1 секунда удержания = 2 секунд заряда
+        let phantomTimer = null;
+	let phantomAttackTimer = null;
+	let isPhantomActive = false;
+	let isPhantomAttack = false;
+        const WIN_GIFS = {
+    1: 'cutscene_1.gif',
+    2: 'cutscene_2.gif',
+    3: 'cutscene_3.gif',
+    4: 'cutscene_4.gif',
+    5: 'cutscene_5.gif'
+};
+
+        // Аниматроники и скримеры
+        const animatronics = [
+            { name: 'foxy', chance: 0.33, image: 'a_foxy_office.png', screamer: 'screamer_foxy.png' },
+            { name: 'freddy', chance: 0.33, image: 'a_freddy_office.png', screamer: 'screamer_freddy.png' },
+            { name: 'oldbonny', chance: 0.33, image: 'a_oldbonny_office.png', screamer: 'screamer_oldbonny.png' },
+            { name: 'goldenfreddy', chance: 0.01, image: 'a_goldenfreddy_office.png', screamer: 'screamer_goldenfreddy.png' }
+        ];
+
+        let currentAnimatronic = null;
+        let animatronicTimer = null;
+        let attackTimer = null;
+        const screamerSound = new Audio('s_screamer.mp3');
+        screamerSound.volume = 0.7;
+        
+        // Аудио элементы
+        const clickSound = document.getElementById('clickSound');
+        const menuSound = document.getElementById('menuSound');
+        const officeSound = document.getElementById('officeSound');
+        
+        // Настройка громкости
+        clickSound.volume = 0.5;
+        menuSound.volume = 0.3;
+        officeSound.volume = 0.4;
+
+	const musicBoxSound = new Audio('s_musicbox.mp3');
+	musicBoxSound.loop = true;
+	musicBoxSound.volume = 0.5;
+
+        // Воспроизводим музыку меню при загрузке
+        menuSound.play().catch(e => console.log("Автовоспроизведение заблокировано:", e));
+        
+        // Обработчик кликов для звука
+        document.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('volume-control')) {
+                clickSound.currentTime = 0;
+                clickSound.play().catch(e => console.log("Не удалось воспроизвести звук клика:", e));
+            }
+        });
+
+clearProgressBtn.addEventListener('click', function() {
+    // Подтверждение действия
+    if (confirm("Вы уверены, что хотите очистить весь прогресс? Все пройденные ночи будут сброшены.")) {
+        clearProgress();
+        aboutOverlay.style.display = 'none';
+    }
+});
+
+        // Проверяем сохранённый прогресс в LocalStorage
+        let progress = localStorage.getItem('fnafProgress') || 1;
+        
+        // Создаём кнопки для ночей
+        for (let i = 1; i <= 5; i++) {
+            const nightBtn = document.createElement('div');
+            nightBtn.className = `night-btn ${i <= progress ? 'available' : 'locked'}`;
+            nightBtn.innerHTML = `
+                <div class="night-number">${i}</div>
+                <div class="night-title">НОЧЬ ${i}</div>
+            `;
+            
+            if (i <= progress) {
+                nightBtn.addEventListener('click', function() {
+                    startNight(i);
+                });
+            }
+            
+            nightsContainer.appendChild(nightBtn);
+        }
+
+        // Устанавливаем мрачную гифку как фон
+        body.style.backgroundImage = "url('menu.gif')";
+
+        // Случайные мерцания для атмосферы
+        setInterval(() => {
+            if (Math.random() > 0.9) {
+                mainMenu.style.boxShadow = '0 0 15px rgba(255, 0, 0, 0.4)';
+                setTimeout(() => {
+                    mainMenu.style.boxShadow = '0 0 10px rgba(255, 0, 0, 0.2)';
+                }, 100);
+            }
+        }, 3000);
+
+        playBtn.addEventListener('click', function() {
+            mainMenu.style.display = 'none';
+            nightsMenu.style.display = 'flex';
+        });
+
+        backBtn.addEventListener('click', function() {
+    // Очищаем все таймеры
+    if (animatronicTimer) clearTimeout(animatronicTimer);
+    if (attackTimer) clearTimeout(attackTimer);
+    if (closetTimer) clearTimeout(closetTimer);
+    
+    // Очищаем интервалы
+    if (currentNight) {
+        if (currentNight.hourInterval) clearInterval(currentNight.hourInterval);
+        if (currentNight.randomSoundInterval) clearInterval(currentNight.randomSoundInterval);
+    }
+    
+    nightsMenu.style.display = 'none';
+    mainMenu.style.display = 'block';
+    
+    if (menuSound.paused) {
+        menuSound.play().catch(e => console.log("Не удалось возобновить музыку меню:", e));
+    }
+    
+    if (!officeSound.paused) {
+        officeSound.pause();
+        officeSound.currentTime = 0;
+    }
+    
+    // Сбрасываем состояние шкафа
+    isInCloset = false;
+    if (buttonContainer && closetBtn) {
+        closetBtn.textContent = 'Спрятаться в шкафу';
+    }
+    if (buttonContainer && cameraBtn) {
+        cameraBtn.style.display = 'block';
+    }
+});
+
+function addClockStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .game-clock {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 3px;
+            z-index: 100;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function spawnPhantom() {
+    if (isPhantomActive || isPhantomAttack) return;
+    
+    isPhantomActive = true;
+    
+    // Создаем изображение фантома
+    const phantom = document.createElement('img');
+    phantom.src = 'screamer_phantompuppet.png';
+    phantom.className = 'phantom';
+    phantom.id = 'phantom-image'; // Добавляем ID для точного поиска
+    gameScreen.appendChild(phantom);
+    
+    // Запускаем таймер для атаки (1 секунда)
+    phantomAttackTimer = setTimeout(() => {
+        if (isPhantomActive && !isPhantomAttack) {
+            triggerPhantomAttack();
+        }
+    }, 1000);
+}
+
+function removePhantom() {
+    if (!isPhantomActive && !isPhantomAttack) return;
+    
+    isPhantomActive = false;
+    clearTimeout(phantomAttackTimer);
+    
+    // Удаляем изображение фантома
+    const phantom = document.getElementById('phantom-image');
+    if (phantom && phantom.parentNode) {
+        phantom.parentNode.removeChild(phantom);
+    }
+    
+    // Удаляем скример, если он есть
+    const screamerImg = document.getElementById('phantom-screamer-img');
+    if (screamerImg && screamerImg.parentNode) {
+        screamerImg.parentNode.removeChild(screamerImg);
+    }
+    
+    // Удаляем overlay мерцания
+    const flicker = document.getElementById('phantom-flicker-overlay');
+    if (flicker && flicker.parentNode) {
+        flicker.parentNode.removeChild(flicker);
+    }
+}
+
+function triggerPhantomAttack() {
+    if (isPhantomAttack) return;
+    
+    isPhantomAttack = true;
+    isPhantomActive = false;
+    
+    // Закрываем камеру принудительно
+    forceCloseCamera();
+    
+    // Удаляем обычное изображение фантома
+    removePhantom();
+    
+    // Создаем overlay для мерцания
+    const flickerOverlay = document.createElement('div');
+    flickerOverlay.id = 'phantom-flicker-overlay';
+    flickerOverlay.style.position = 'fixed';
+    flickerOverlay.style.top = '0';
+    flickerOverlay.style.left = '0';
+    flickerOverlay.style.width = '100%';
+    flickerOverlay.style.height = '100%';
+    flickerOverlay.style.zIndex = '9999';
+    flickerOverlay.style.pointerEvents = 'none';
+    flickerOverlay.style.animation = 'flicker 0.1s infinite';
+    gameScreen.appendChild(flickerOverlay);
+    
+    // Воспроизводим звук фантома
+    const phantomSound = document.getElementById('phantomSound');
+    phantomSound.currentTime = 0;
+    phantomSound.play().catch(e => console.log("Не удалось воспроизвести звук фантома:", e));
+    
+    // Показываем скример на 10 секунд
+    const screamer = document.createElement('img');
+    screamer.id = 'phantom-screamer-img';
+    screamer.src = 'screamer_phantompuppet.png';
+    screamer.className = 'phantom-screamer';
+    gameScreen.appendChild(screamer);
+    
+    // Блокируем кнопки
+    buttonContainer.classList.add('disabled-buttons');
+    
+    // Через 10 секунд убираем эффекты
+    setTimeout(() => {
+        // Удаляем overlay мерцания
+        const flicker = document.getElementById('phantom-flicker-overlay');
+        if (flicker && flicker.parentNode) {
+            flicker.parentNode.removeChild(flicker);
+        }
+        
+        // Удаляем скример
+        const screamerImg = document.getElementById('phantom-screamer-img');
+        if (screamerImg && screamerImg.parentNode) {
+            screamerImg.parentNode.removeChild(screamerImg);
+        }
+        
+        // Разблокируем кнопки
+        buttonContainer.classList.remove('disabled-buttons');
+        
+        isPhantomAttack = false;
+        
+        // Восстанавливаем обычный фон офиса
+        gameScreen.style.backgroundImage = "url('office.gif')";
+    }, 10000);
+}
+
+function forceCloseCamera() {
+    if (!isCameraOpen) return;
+    
+    isCameraOpen = false;
+    
+    // Останавливаем анимацию камеры
+    if (cameraAnimationInterval) {
+        clearInterval(cameraAnimationInterval);
+        cameraAnimationInterval = null;
+    }
+    
+    // Убираем эффекты камеры
+    removeCameraEffects();
+    
+    // Останавливаем музыку камеры
+    musicBoxSound.pause();
+    musicBoxSound.currentTime = 0;
+    
+    // Возобновляем звук офиса
+    officeSound.currentTime = 0;
+    officeSound.play().catch(e => console.log("Не удалось возобновить звук офиса:", e));
+
+    // Скрываем элементы марионетки
+    const meterContainer = document.querySelector('.puppet-meter-container');
+    const puppetBtn = document.querySelector('.puppet-button');
+    if (meterContainer) meterContainer.style.display = 'none';
+    if (puppetBtn) puppetBtn.style.display = 'none';
+    
+    // Удаляем изображение камеры
+    if (cameraImage && cameraImage.parentNode) {
+        cameraImage.parentNode.removeChild(cameraImage);
+        cameraImage = null;
+    }
+    
+    // Показываем кнопку шкафа
+    if (closetBtn) closetBtn.style.display = 'block';
+    
+    // Возвращаем текст кнопки
+    if (cameraBtn) cameraBtn.textContent = 'Посмотреть камеру';
+}
+
+function openCamera() {
+    if (isCameraOpen || isInCloset) return;
+    
+    clickSound.play();
+    isCameraOpen = true;
+    
+    // Останавливаем звук офиса
+    officeSound.pause();
+    officeSound.currentTime = 0;
+    
+    // Скрываем кнопку шкафа
+    closetBtn.style.display = 'none';
+
+    // Показываем элементы марионетки
+    const meterContainer = document.querySelector('.puppet-meter-container');
+    const puppetBtn = document.querySelector('.puppet-button');
+    if (meterContainer) {
+        meterContainer.style.display = 'block';
+        updatePuppetMeter();
+    }
+    if (puppetBtn) puppetBtn.style.display = 'block';
+    
+    // Создаем изображение камеры
+    cameraImage = document.createElement('img');
+    cameraImage.src = 'camera.png';
+    cameraImage.style.position = 'absolute';
+    cameraImage.style.top = '-1%';
+    cameraImage.style.left = '-25%';
+    cameraImage.style.width = '150%';
+    cameraImage.style.height = '150%';
+    cameraImage.style.objectFit = 'cover';
+    cameraImage.style.zIndex = '150';
+    cameraImage.style.transform = 'translateX(100%)';
+    cameraImage.style.transition = 'transform 0.1s ease-in-out';
+    
+    gameScreen.appendChild(cameraImage);
+    
+    // Запускаем анимацию движения камеры
+    setTimeout(() => {
+        cameraImage.style.transform = 'translateX(0)';
+        
+        // Воспроизводим музыку камеры
+        musicBoxSound.currentTime = 0;
+        musicBoxSound.play().catch(e => console.log("Не удалось воспроизвести музыку камеры:", e));
+     
+        // Проверка на появление фантома (8% шанс)
+        if (Math.random() < 0.08 && !isPhantomActive) {
+            spawnPhantom();
+        }
+        
+        // Добавляем эффекты камеры
+        addCameraEffects();
+        
+        // Анимация движения камеры (вправо-влево)
+        startCameraAnimation();
+        
+        // Меняем текст кнопки
+        cameraBtn.textContent = 'Выйти из камеры';
+    }, 100);
+}
+
+function startPuppetMechanic() {
+    // Создаем элементы интерфейса, если их еще нет
+    let meterContainer = document.querySelector('.puppet-meter-container');
+    let puppetBtn = document.querySelector('.puppet-button');
+    
+    if (!meterContainer) {
+        meterContainer = document.createElement('div');
+        meterContainer.className = 'puppet-meter-container';
+        meterContainer.innerHTML = '<div class="puppet-meter" style="width: 100%"></div>';
+        gameScreen.appendChild(meterContainer);
+    }
+    
+    if (!puppetBtn) {
+        puppetBtn = document.createElement('button');
+        puppetBtn.className = 'puppet-button';
+        puppetBtn.textContent = 'Зарядить шкатулку';
+        puppetBtn.addEventListener('mousedown', startChargingPuppet);
+        puppetBtn.addEventListener('mouseup', stopChargingPuppet);
+        puppetBtn.addEventListener('mouseleave', stopChargingPuppet);
+        gameScreen.appendChild(puppetBtn);
+    }
+    
+    // Показываем элементы только в камере
+    meterContainer.style.display = 'none';
+    puppetBtn.style.display = 'none';
+    
+    // Запускаем отсчет шкалы
+    puppetMeter = puppetMaxMeter;
+    updatePuppetMeter();
+    isPuppetActive = true;
+    puppetMeterInterval = setInterval(decreasePuppetMeter, 1000);
+}
+
+function decreasePuppetMeter() {
+    if (isHoldingPuppetButton) {
+        // Только если кнопка зажата, добавляем заряд
+        puppetMeter = Math.min(puppetMeter + puppetChargeRate, puppetMaxMeter);
+    } else {
+        // Если не зажата - уменьшаем
+        puppetMeter -= 1;
+    }
+    updatePuppetMeter();
+    
+    if (puppetMeter <= 0) {
+        triggerPuppetAttack();
+    }
+}
+
+function updatePuppetMeter() {
+    const meter = document.querySelector('.puppet-meter');
+    if (meter) {
+        const percentage = (puppetMeter / puppetMaxMeter) * 100;
+        meter.style.width = `${percentage}%`;
+    }
+}
+
+function startChargingPuppet() {
+    if (isCameraOpen) {
+        isHoldingPuppetButton = true;
+        // Удаляем интервал и заменяем на однократное добавление при зажатии
+        if (!isHoldingPuppetButton) {
+            puppetMeter = Math.min(puppetMeter + puppetChargeRate, puppetMaxMeter);
+            updatePuppetMeter();
+        }
+    }
+}
+
+function stopChargingPuppet() {
+    isHoldingPuppetButton = false;
+}
+
+function triggerPuppetAttack() {
+    // Очищаем таймеры
+    clearInterval(puppetMeterInterval);
+    isPuppetActive = false;
+    
+    // Показываем скример
+    const screamer = document.createElement('img');
+    screamer.src = 'screamer_puppet.png';
+    screamer.className = 'screamer';
+    screamer.style.position = 'absolute';
+    screamer.style.top = '0';
+    screamer.style.left = '0';
+    screamer.style.width = '100%';
+    screamer.style.height = '100%';
+    screamer.style.objectFit = 'cover';
+    screamer.style.zIndex = '1000';
+    
+    gameScreen.appendChild(screamer);
+    
+    // Воспроизводим звук скримера
+    screamerSound.currentTime = 0;
+    screamerSound.play().catch(e => console.log("Не удалось воспроизвести звук скримера:", e));
+    
+    // Очищаем все таймеры
+    if (animatronicTimer) clearTimeout(animatronicTimer);
+    if (attackTimer) clearTimeout(attackTimer);
+    if (closetTimer) clearTimeout(closetTimer);
+    
+    // Очищаем интервалы
+    if (currentNight) {
+        if (currentNight.hourInterval) clearInterval(currentNight.hourInterval);
+        if (currentNight.randomSoundInterval) clearInterval(currentNight.randomSoundInterval);
+    }
+    
+    // Завершаем игру через 1.5 секунды
+    setTimeout(() => {
+        gameScreen.style.display = 'none';
+        nightsMenu.style.display = 'flex';
+        nightsMenu.style.opacity = '1';
+        
+        // Восстанавливаем фон меню
+        body.style.backgroundImage = "url('menu.gif')";
+        body.classList.remove('night-mode');
+        
+        // Удаляем скример
+        const existingScreamer = document.querySelector('.screamer');
+        if (existingScreamer) existingScreamer.remove();
+        
+        // Останавливаем все звуки игры
+        officeSound.pause();
+        officeSound.currentTime = 0;
+        musicBoxSound.pause();
+        musicBoxSound.currentTime = 0;
+        const savezoneSound = document.getElementById('savezoneSound');
+        savezoneSound.pause();
+        savezoneSound.currentTime = 0;
+        
+        // Включаем музыку меню
+        menuSound.play().catch(e => console.log("Не удалось воспроизвести музыку меню:", e));
+        
+        // Сбрасываем состояние шкафа и камеры
+        isInCloset = false;
+        isCameraOpen = false;
+        if (buttonContainer && closetBtn) {
+            closetBtn.textContent = 'Спрятаться в шкафу';
+        }
+        if (buttonContainer && cameraBtn) {
+            cameraBtn.style.display = 'block';
+            cameraBtn.textContent = 'Посмотреть камеру';
+        }
+        
+        // Сбрасываем механику марионетки
+        resetPuppetMechanic();
+    }, 1500);
+}
+
+function resetPuppetMechanic() {
+    if (puppetMeterInterval) clearInterval(puppetMeterInterval);
+    isPuppetActive = false;
+    puppetMeter = 0;
+    isHoldingPuppetButton = false;
+    
+    const meterContainer = document.querySelector('.puppet-meter-container');
+    const puppetBtn = document.querySelector('.puppet-button');
+    
+    if (meterContainer) {
+        meterContainer.style.display = 'none';
+        updatePuppetMeter(); // Обновляем отображение шкалы
+    }
+    if (puppetBtn) {
+        puppetBtn.style.display = 'none';
+    }
+}
+
+// Функция закрытия камеры
+function closeCamera() {
+    removePhantom();
+    if (!isCameraOpen) return;
+    
+    clickSound.play();
+    isCameraOpen = false;
+    
+    // Останавливаем анимацию камеры
+    if (cameraAnimationInterval) {
+        clearInterval(cameraAnimationInterval);
+        cameraAnimationInterval = null;
+    }
+    
+    // Убираем эффекты камеры
+    removeCameraEffects();
+    
+    // Останавливаем музыку камеры
+    musicBoxSound.pause();
+    musicBoxSound.currentTime = 0;
+    
+    // Возобновляем звук офиса
+    officeSound.currentTime = 0;
+    officeSound.play().catch(e => console.log("Не удалось возобновить звук офиса:", e));
+
+    // Скрываем элементы марионетки
+    const meterContainer = document.querySelector('.puppet-meter-container');
+    const puppetBtn = document.querySelector('.puppet-button');
+    if (meterContainer) meterContainer.style.display = 'none';
+    if (puppetBtn) puppetBtn.style.display = 'none';
+    
+    // Анимация закрытия камеры
+    cameraImage.style.transform = 'translateX(100%)';
+    
+    setTimeout(() => {
+        if (cameraImage && cameraImage.parentNode) {
+            cameraImage.parentNode.removeChild(cameraImage);
+            cameraImage = null;
+        }
+        
+        // Показываем кнопку шкафа
+        closetBtn.style.display = 'block';
+        
+        // Возвращаем текст кнопки
+        cameraBtn.textContent = 'Посмотреть камеру';
+    }, 500);
+}
+
+// Функция для переключения камеры
+function toggleCamera() {
+    // Если кнопка заблокирована (идет анимация) - ничего не делаем
+    if (cameraBtn.disabled) return;
+    
+    // Если идет атака фантома - не реагируем
+	if (isPhantomAttack) return;
+
+    // Блокируем кнопку на время анимации
+    cameraBtn.disabled = true;
+    closetBtn.disabled = true;
+    
+    if (isCameraOpen) {
+        closeCamera();
+    } else {
+        openCamera();
+    }
+    
+    // Разблокируем кнопки после завершения анимации (500ms)
+    setTimeout(() => {
+        cameraBtn.disabled = false;
+        closetBtn.disabled = false;
+    }, 500);
+}
+
+// Функция анимации камеры (движение вправо-влево)
+function startCameraAnimation() {
+    let direction = -1; // -1 для движения влево, 1 для движения вправо
+    let currentPos = 0;
+    const maxOffset = 30; // Максимальное смещение в пикселях
+    
+    cameraAnimationInterval = setInterval(() => {
+        currentPos += direction * 2;
+        
+        if (Math.abs(currentPos) >= maxOffset) {
+            direction *= -1; // Меняем направление
+        }
+        
+        cameraImage.style.transform = `translateX(${currentPos}px)`;
+    }, 50);
+}
+
+// Функция добавления эффектов камеры
+function addCameraEffects() {
+    const cameraEffects = document.createElement('div');
+    cameraEffects.className = 'camera-effects';
+    cameraEffects.style.position = 'absolute';
+    cameraEffects.style.top = '0';
+    cameraEffects.style.left = '0';
+    cameraEffects.style.width = '100%';
+    cameraEffects.style.height = '100%';
+    cameraEffects.style.zIndex = '151';
+    cameraEffects.style.pointerEvents = 'none';
+    cameraEffects.style.background = `
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) 1px, transparent 1px, transparent 2px),
+        repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) 1px, transparent 1px, transparent 2px)
+    `;
+    cameraEffects.style.opacity = '0.5';
+    
+    gameScreen.appendChild(cameraEffects);
+}
+
+// Функция удаления эффектов камеры
+function removeCameraEffects() {
+    const effects = document.querySelector('.camera-effects');
+    if (effects && effects.parentNode) {
+        effects.parentNode.removeChild(effects);
+    }
+}
+
+// если желаете продолжение, напишите мне в лс фразу - ФНАФ ПИКСЕЛЬ 2 ДОЛЖЕН СУЩЕСТВОВАТЬ
+
+// Создаем элемент часов
+function createClockElement() {
+    const clock = document.createElement('div');
+    clock.className = 'game-clock';
+    clock.textContent = '00:00';
+    return clock;
+}
+
+// Функция для обновления времени
+function updateGameTime(clockElement, currentHour) {
+    const formattedHour = currentHour.toString().padStart(2, '0');
+    clockElement.textContent = `${formattedHour}:00`;
+}
+
+// Основная функция для управления временем
+function startGameClock(nightNumber) {
+    addClockStyles();
+    const clockElement = createClockElement();
+    gameScreen.appendChild(clockElement);
+    
+    let currentHour = 0;
+    updateGameTime(clockElement, currentHour);
+    
+    // 1 игровой час = 50 реальных секунд
+    const hourInterval = setInterval(() => {
+        currentHour++;
+        updateGameTime(clockElement, currentHour);
+        
+        // Проверяем, не наступил ли победный час
+        if (currentHour === 6) {
+            handleWinCondition(nightNumber, hourInterval, clockElement);
+        }
+    }, 50000); // 50 секунд
+    
+    // Возвращаем interval ID для возможности очистки
+    return hourInterval;
+}
+
+// Обработка победы (6 часов)
+function handleWinCondition(nightNumber, hourInterval, clockElement) {
+    // Очищаем интервал времени
+    clearInterval(hourInterval);
+    resetPuppetMechanic();
+    
+    // Воспроизводим звук победы
+    const winSound = new Audio('s_win.mp3');
+    winSound.volume = 1.0;
+    winSound.play().catch(e => console.log("Не удалось воспроизвести звук победы:", e));
+    
+    // Делаем игрока неуязвимым
+    if (animatronicTimer) clearTimeout(animatronicTimer);
+    if (attackTimer) clearTimeout(attackTimer);
+    const existingAnim = document.querySelector('.animatronic');
+    if (existingAnim) existingAnim.remove();
+    const existingScreamer = document.querySelector('.screamer');
+    if (existingScreamer) existingScreamer.remove();
+    
+    // Через 7 секунд завершаем ночь
+    setTimeout(() => {
+        clockElement.remove();
+        
+        // Восстанавливаем фон меню
+        body.style.backgroundImage = "url('menu.gif')";
+        body.classList.remove('night-mode');
+        
+        // Останавливаем звуки офиса
+        officeSound.pause();
+        officeSound.currentTime = 0;
+        
+        // Включаем музыку меню
+        menuSound.play().catch(e => console.log("Не удалось воспроизвести музыку меню:", e));
+        
+        completeNight(nightNumber);
+    }, 7000);
+}
+
+// Диалоги для каждой ночи
+const nightDialogs = {
+    1: {
+        character: "eva_1.gif",
+        lines: [
+            { name: "???", text: "О, привет, это ты по объявлению?" },
+            { name: "Вы", text: "Да, я" },
+            { name: "???", text: "В общем, держи ключи, и что ты так легко одет? Там холодно, работает охлаждение" },
+            { name: "Вы", text: "Зачем охлаждение?" },
+            { name: "???", text: "Ммм, не так важно, лучше слушай, твоя смена как я и говорила по телефону это 00:00 - 06:00, в 6 утра закрываешь пиццерию и езжай дамой"  },
+            { name: "???", text: "Да и ещё, перед каждым рабочим днём будем встречаться в 00:00 тут, ну это просто нужно так скажем, меня кстати Ева зовут" },
+            { name: "Ева", text: "Думаю, всё понял? Тут так холодно жуть, и могли бы освещение тут сделать, мда, ладно давай пока" },
+            { name: "Вы", text: "Да стой, погоди, ну расскажи подробней за работу" },
+            { name: "Ева", text: "Ах, ну давай расскажу" },
+            { name: "Ева", text: "В общем эта пиццерия, была очень известной в 2010-х за счёт своих аниматроников" },
+            { name: "Вы", text: "За счёт кого?" },
+            { name: "Ева", text: "Ну просто будем называть их роботами" },
+            { name: "Ева", text: "Они ходили бродили, и детям нравилось, но после заведение закрыли. А сейчас они иногда ходят по заведению" },
+            { name: "Ева", text: "И технология очень дорогая, и нужно охранять их от воров и вандалов, справишься?" },
+            { name: "Ева", text: "Если роботы к тебе приходят, то залезь в шкаф, они не найдут наверное, но есть маленький шанс что это может не помочь, но не переживай" },
+            { name: "Ева", text: "Ах, так-же нужно подкручивать шкатулку марионетки, чтобы она не злилась" },
+            { name: "Вы", text: "А почему уволился прошлый охранник?" },
+            { name: "Ева", text: "Ну, у него начались панические атаки, просто довольно большое напряжение там, стресс, он начал видеть марионетку перед собой, ну бредить короче" },
+            { name: "Ева", text: "Просто если начнут плыть глаза, то просто планшет с камерами убери, и нормально будет" },
+            { name: "Ева", text: "Давай, надеюсь, завтра встретимся тут перед твоей сменой, давай удачи" },
+        ]
+    },
+    2: {
+        character: "eva_2.gif",
+        lines: [
+            { name: "Вы", text: "Это что было вчера? Да они словно убить меня хотят! Я переживаю, я увольняюсь, я не буду тут работать!" },
+            { name: "Ева", text: "Подожди давай по порядку. Да, я признаюсь, что там реально опасно" },
+            { name: "Ева", text: "Но мне некого больше поставить, если ты уволишься, то я в твоей трудовой книжке пакости тебе напишу, тебя больше никто на работу не возьмёт. Так что пожалуйста будь добр, отработай своё" },
+            { name: "Вы", text: "Ты вообще в здравом уме? Ты будешь шантажировать, ставя на весы мою жизнь?" },
+            { name: "Ева", text: "Эй, ну у тебя будет хорошая зарплата после" },
+            { name: "Вы", text: "Да я листовки раздавая заработал бы больше" },
+            { name: "Ева", text: "Ладно, говорю как есть, я владелец этого здания, оно мне досталось в наследство, и я хочу побыстрее его продать, сейчас активно ищу покупателя" },
+            { name: "Ева", text: "Давай замотивирую тебя, возможно я здание продам через неделю примерно, и работа закончится, и ещё я дам неплохие премиальные тебе если отработаешь до конца" },
+            { name: "Ева", text: "Ты не поверишь, я уже с ума схожу, в личной жизни столько проблем, психологических проблем полно, да и от этого заведения столько бед, я сама просто чувствую вину, уже столько охраников тут погибло... Ой" },
+            { name: "Вы", text: "ПОГИБЛО!? Они реально убивают?" },
+            { name: "Ева", text: "Да, не хотела говорить, но пришлось, прости за это всё, но теперь мы команда, ты мой единственный друг, чтобы пережить этот кошмар" },
+        ]
+    },
+    3: {
+        character: "eva_3.gif",
+        lines: [
+            { name: "Ева", text: "Привет" },
+            { name: "Вы", text: "Привет" },
+            { name: "Ева", text: "Слушай, мне реально стыдно за вчерашнее, извини за шантаж, мне сегодня было очень стыдно за это" },
+            { name: "Ева", text: "И ещё я переживала за тебя, ты мне очень понравился как человек, так что мне есть тебе что рассказать" },
+            { name: "Ева", text: "В детстве, я очень много времени проводила в этом заведении, так как принадлежало моим родителям, и оно мне реально нравилось" },
+            { name: "Ева", text: "Я чувствовала какую-то гордость, что самое любимое заведение моих друзей, было частично моим" },
+            { name: "Вы", text: "Ну сейчас оно полностью твоё" },
+            { name: "Ева", text: "Теперь я сожалею что оно стало моим, ладно продолжаю" },
+            { name: "Ева", text: "Мой папа со своим другом, автор этих аниматроников, всем было весело, пока в пиццерии не начали пропадать дети" },
+            { name: "Ева", text: "Дети пропадали друг за другом, а после была убита моя мама, но никто не знал кто убийца" },
+            { name: "Ева", text: "Всего погибло четыре ребёнка и одна женщина, прежде чем пиццерию закрыли, я была в шоке, когда узнала что убийца - мой папа" },
+            { name: "Вы", text: "..." },
+            { name: "Ева", text: "Я чётко помню день, когда папу выводили в наручниках, я плакала, говорила что он не виноват, но оказалось, что он был реально маньяком" },
+            { name: "Вы", text: "Если он успел убить 5 человек, то где была полиция?" },
+            { name: "Ева", text: "Мой папа был гением, он прятал тела детей в аниматроников, туда внутрь, а тело мамы в кладовке, и чтобы тела не завонялись, в заведении была пониженная температура" },
+            { name: "Вы", text: "А почему до сих пор холодно, они что там ещё лежат?" },
+            { name: "Ева", text: "Да..." },
+            { name: "Вы", text: "..." },
+            { name: "Ева", text: "Из-за халатности следствия, фактически убийства детей не были доказаны, но все убийства просто повесили на моего папу, так как он единственный подозреваемый" },
+            { name: "Вы", text: "А как полиция обнаружила тела?" },
+            { name: "Ева", text: "Тела детей не смогла, а тело моей мамы смогли. В один штатный рабочий день, система охлаждения сломалась, папа в итоге её успел починить, но было поздно" },
+            { name: "Ева", text: "Посетители пожаловались на трупный запах, и приехала полиция, ну и всё" },
+            { name: "Вы", text: "Это жесть Ева..." },
+            { name: "Вы", text: "Ева, я обещаю у нас всё получится, мы проживём этот кошмар, у нас всё нормально будет, ладно мне пора идти на работу" },
+            { name: "Ева", text: "Удачи" },
+        ]
+    },
+    4: {
+        character: "eva_4.gif",
+        lines: [
+            { name: "Ева", text: "О привет, готов к работе?" },
+            { name: "Вы", text: "Не особо" },
+            { name: "Ева", text: "Да не переживай, если ты три раза смог, то и четвёртый сможешь" },
+            { name: "Вы", text: "Слушай, знаешь, я всё время думаю о том с тобой разговоре и о том, что ты мне рассказала" },
+            { name: "Вы", text: "Так жаль этих детей, что погибли, я разглядывал их рисунки в здании, это наверное их да?" },
+            { name: "Ева", text: "Скорее нет, я конечно плохо помню, но если ты про офис, то там только мои рисунки, я их сама рисовала в детстве" },
+            { name: "Ева", text: "Обычных детей не пускали в офис, но охранником был мой дядя, я часто там сидела, так как нравилось следить за мониторами" },
+            { name: "Ева", text: "И охранник разрешал вешать рисунки, на самом деле их куда больше было, но вандалы многое испортили" },
+            { name: "Вы", text: "Понял, я вообще не знаю как эти страшилы могли нравятся детям" },
+            { name: "Ева", text: "Ну знаешь, раньше они были красивее намного, так как не были поломанные и заведение блестело от чистоты" },
+            { name: "Ева", text: "Плюс я лично чувствовала что-то особенное находясь здесь, не могу описать это чувство" },
+            { name: "Вы", text: "Понял тебя, а ты вообще как, как самочувствие?" },
+            { name: "Ева", text: "Уже лучше, я чувствую поддержку в виде тебя" },
+            { name: "Вы", text: "Приятно, ладно, уже почти полночь, мне нужно успеть попасть в офис, пока они не стали злыми" },
+            { name: "Ева", text: "Давай беги" },
+
+        ]
+    },
+    5: {
+        character: "eva_5.gif",
+        lines: [
+            { name: "Вы", text: "Ну привет" },
+            { name: "Ева", text: "Почему ты такой грустный?" },
+            { name: "Вы", text: "А ты что такая весёлая?" },
+            { name: "Ева", text: "Ну у меня есть повод, здание хотят купить, уже сегодня после твоей смены мы идём подписывать документы" },
+            { name: "Вы", text: "Господи, ура, это получается сегодня последний рабочий день?" },
+            { name: "Ева", text: "Да, поздравляю тебя, в общем сегодня последний день" },
+            { name: "Ева", text: "Смотри не ошибись, теперь переживаю за тебя, давай мы сможем" },
+            { name: "Ева", text: "Предлагаю кстати сегодня вечером сходить куда-нибудь, познакомиться поближе и отпраздновать эту победу!" },
+            { name: "Вы", text: "Да, реально можно, я на улице Платова знаю отличное местечко" },
+            { name: "Ева", text: "Ну вот, туда и пойдём" },
+            { name: "Ева", text: "Всё, давай до вечера, сегодня будет классный день" },
+            { name: "Вы", text: "Отлично, увидимся" },
+        ]
+    }
+};
+
+// Переменные для управления диалогами
+let currentDialogIndex = 0;
+let currentNightDialog = null;
+
+// Функция для показа диалогов перед ночью
+function showNightDialog(nightNumber) {
+    if (!nightDialogs[nightNumber]) {
+        startGameAfterDialog();
+        return;
+    }
+
+    currentNightDialog = nightDialogs[nightNumber];
+    currentDialogIndex = 0;
+    
+    const dialogOverlay = document.getElementById('dialogOverlay');
+    const dialogCharacter = document.getElementById('dialogCharacter');
+    const dialogName = document.getElementById('dialogName');
+    const dialogText = document.getElementById('dialogText');
+    
+    // Устанавливаем персонажа
+    dialogCharacter.src = currentNightDialog.character;
+    
+    // Показываем первый диалог
+    showNextDialogLine();
+    
+    // Показываем overlay
+    dialogOverlay.style.display = 'flex';
+    
+    // Обработчик клика для перехода к следующему диалогу
+    dialogOverlay.onclick = function() {
+        clickSound.play();
+        showNextDialogLine();
+    };
+}
+
+function showNextDialogLine() {
+    if (currentDialogIndex < currentNightDialog.lines.length) {
+        const line = currentNightDialog.lines[currentDialogIndex];
+        document.getElementById('dialogName').textContent = line.name;
+        document.getElementById('dialogText').textContent = line.text;
+        currentDialogIndex++;
+    } else {
+        // Все диалоги показаны, начинаем игру
+        startGameAfterDialog();
+    }
+}
+
+function startGameAfterDialog() {
+    const dialogOverlay = document.getElementById('dialogOverlay');
+    dialogOverlay.style.display = 'none';
+    dialogOverlay.onclick = null;
+    
+    // Запускаем анимацию перехода
+    const fadeOverlay = document.createElement('div');
+    fadeOverlay.className = 'fade-overlay';
+    fadeOverlay.style.zIndex = '2001';
+    document.body.appendChild(fadeOverlay);
+    
+    fadeOverlay.style.opacity = '1';
+    
+    setTimeout(() => {
+        // Запускаем игру после диалогов
+        startNightGameplay(currentNight.number);
+        
+        setTimeout(() => {
+            fadeOverlay.style.opacity = '0';
+            setTimeout(() => {
+                fadeOverlay.remove();
+            }, 1000);
+        }, 500);
+    }, 500);
+}
+
+        function startNight(nightNumber) {
+    currentNight = {
+        number: nightNumber,
+        randomSoundInterval: null,
+        hourInterval: null
+    };
+
+    menuSound.pause();
+    menuSound.currentTime = 0;
+    musicBoxSound.pause();
+    musicBoxSound.currentTime = 0;
+    
+    nightsMenu.style.opacity = '0';
+    nightsMenu.style.transition = 'opacity 1s';
+    
+    setTimeout(() => {
+        nightsMenu.style.display = 'none';
+        body.classList.add('night-mode');
+        body.style.backgroundImage = "none";
+        
+        // Вместо непосредственного запуска игры показываем диалоги
+        showNightDialog(nightNumber);
+    }, 1000);
+}
+
+// Новая функция для запуска игрового процесса после диалогов
+function startNightGameplay(nightNumber) {
+    // Добавляем интервал для случайных звуков
+    const randomSound = document.getElementById('randomSound');
+    randomSound.volume = 0.5;
+
+    const randomSoundInterval = setInterval(() => {
+        if (Math.random() < 0.10) {
+            if (randomSound.paused) {
+                randomSound.currentTime = 0;
+                randomSound.play().catch(e => console.log("Не удалось воспроизвести случайный звук:", e));
+            }
+        }
+    }, 10000);
+
+    currentNight.randomSoundInterval = randomSoundInterval;
+    
+    // Воспроизводим звук офиса
+    officeSound.currentTime = 0;
+    officeSound.play().catch(e => console.log("Не удалось воспроизвести музыку офиса:", e));
+    
+    setTimeout(() => {
+        gameScreen.style.backgroundImage = "url('office.gif')";
+        gameScreen.style.backgroundSize = "cover";
+        gameScreen.style.display = "block";
+        gameScreen.classList.add("fade-in");
+        
+        // Создаем кнопки действий
+        createActionButtons();
+        startPuppetMechanic();
+        
+        // Запускаем игровые часы
+        currentNight.hourInterval = startGameClock(nightNumber);
+        
+        console.log(`Началась ночь ${nightNumber}!`);
+        
+        // Запускаем первого аниматроника с задержкой 15-120 секунд
+        const firstSpawnTime = Math.random() * 105000 + 15000;
+        animatronicTimer = setTimeout(() => {
+            if (gameScreen.style.display === 'block' && !isInCloset) {
+                spawnAnimatronic();
+            }
+        }, firstSpawnTime);
+    }, 500);
+}
+
+function createActionButtons() {
+    // Создаем контейнер для кнопок
+    buttonContainer = document.createElement('div');
+    buttonContainer.className = 'button-container';
+    
+    // Кнопка камеры
+    cameraBtn = document.createElement('button');
+    cameraBtn.className = 'action-btn';
+    cameraBtn.textContent = 'Посмотреть камеру';
+    cameraBtn.addEventListener('click', toggleCamera);
+    
+    // Кнопка шкафа
+    closetBtn = document.createElement('button');
+    closetBtn.className = 'action-btn';
+    closetBtn.textContent = 'Спрятаться в шкафу';
+    closetBtn.addEventListener('click', toggleCloset);
+    
+    // Добавляем кнопки в контейнер
+    buttonContainer.appendChild(cameraBtn);
+    buttonContainer.appendChild(closetBtn);
+    
+    // Добавляем контейнер в gameScreen
+    gameScreen.appendChild(buttonContainer);
+    
+    // Создаем overlay для анимаций
+    fadeOverlay = document.createElement('div');
+    fadeOverlay.className = 'fade-overlay';
+    gameScreen.appendChild(fadeOverlay);
+}
+
+
+function toggleCloset() {
+    // Если кнопка заблокирована (идет анимация) - ничего не делаем
+    if (closetBtn.disabled) return;
+    
+    // Блокируем кнопки на время анимации
+    cameraBtn.disabled = true;
+    closetBtn.disabled = true;
+    
+    clickSound.play();
+    
+    if (isInCloset) {
+        exitCloset();
+    } else {
+        hideInCloset();
+    }
+    
+    // Разблокируем кнопки после завершения анимации (1000ms)
+    setTimeout(() => {
+        cameraBtn.disabled = false;
+        closetBtn.disabled = false;
+    }, 1000);
+}
+
+function hideInCloset() {
+    isInCloset = true;
+    closetBtn.textContent = 'Выйти из шкафа';
+    
+    // Анимация затемнения
+    fadeOverlay.style.opacity = '1';
+    
+    setTimeout(() => {
+        // Меняем фон на officesave.gif
+        gameScreen.style.backgroundImage = "url('officesave.gif')";
+        
+        // Прячем кнопку камеры
+        cameraBtn.style.display = 'none';
+        
+        // Возвращаем прозрачность
+        fadeOverlay.style.opacity = '0';
+        
+        // Воспроизводим звук безопасной зоны
+        const savezoneSound = document.getElementById('savezoneSound');
+        savezoneSound.loop = true;
+        savezoneSound.volume = 0.5;
+        savezoneSound.play().catch(e => console.log("Не удалось воспроизвести звук безопасной зоны:", e));
+        
+        // Продолжаем механику марионетки, но скрываем интерфейс
+        const meterContainer = document.querySelector('.puppet-meter-container');
+        const puppetBtn = document.querySelector('.puppet-button');
+        if (meterContainer) meterContainer.style.display = 'none';
+        if (puppetBtn) puppetBtn.style.display = 'none';
+        
+        // 1% шанс быть атакованным даже в шкафу
+        if (Math.random() < 0.01 && currentAnimatronic) {
+            setTimeout(() => {
+                triggerScreamer();
+            }, 1000);
+        } else {
+            // Аниматроники уходят
+            if (currentAnimatronic) {
+                const animElement = document.querySelector('.animatronic');
+                if (animElement) animElement.remove();
+                currentAnimatronic = null;
+            }
+            
+            // Они вернутся через 15-120 секунд
+            closetTimer = setTimeout(() => {
+                if (isInCloset && gameScreen.style.display === 'block') {
+                    spawnAnimatronic();
+                }
+            }, Math.random() * 15000 + 120000);
+        }
+    }, 1000);
+}
+
+function exitCloset() {
+    isInCloset = false;
+    closetBtn.textContent = 'Спрятаться в шкафу';
+    
+    // Останавливаем звук безопасной зоны
+    const savezoneSound = document.getElementById('savezoneSound');
+    savezoneSound.pause();
+    savezoneSound.currentTime = 0;
+    
+    // Закрываем камеру, если она была открыта
+    if (isCameraOpen) {
+        closeCamera();
+    }
+    
+    // Анимация затемнения
+    fadeOverlay.style.opacity = '1';
+    
+    setTimeout(() => {
+        // Возвращаем обычный фон
+        gameScreen.style.backgroundImage = "url('office.gif')";
+        
+        // Показываем кнопку камеры
+        cameraBtn.style.display = 'block';
+        
+        // Возвращаем прозрачность
+        fadeOverlay.style.opacity = '0';
+        
+        // Очищаем таймер шкафа
+        if (closetTimer) {
+            clearTimeout(closetTimer);
+            closetTimer = null;
+        }
+        
+        // Восстанавливаем отображение элементов марионетки, если камера открыта
+        if (isCameraOpen) {
+            const meterContainer = document.querySelector('.puppet-meter-container');
+            const puppetBtn = document.querySelector('.puppet-button');
+            if (meterContainer) {
+                meterContainer.style.display = 'block';
+                updatePuppetMeter();
+            }
+            if (puppetBtn) puppetBtn.style.display = 'block';
+        }
+        
+        // Аниматроники могут вернуться сразу после выхода
+        const spawnTime = Math.random() * 30000 + 15000; // от 15 до 45 секунд
+        animatronicTimer = setTimeout(() => {
+            if (gameScreen.style.display === 'block' && !isInCloset) {
+                spawnAnimatronic();
+            }
+        }, spawnTime);
+    }, 1000);
+}
+
+
+function spawnAnimatronic() {
+    if (animatronicTimer) clearTimeout(animatronicTimer);
+    if (attackTimer) clearTimeout(attackTimer);
+    
+    // Проверяем, что мы все еще в игре (а не в меню) и не в шкафу
+    if (gameScreen.style.display !== 'block' || isInCloset) return;
+    
+    if (currentAnimatronic) {
+        const existing = document.querySelector('.animatronic');
+        if (existing) existing.remove();
+        currentAnimatronic = null;
+    }
+    
+    const random = Math.random();
+    let cumulativeChance = 0;
+    let selected = null;
+    
+    for (const anim of animatronics) {
+        cumulativeChance += anim.chance;
+        if (random <= cumulativeChance) {
+            selected = anim;
+            break;
+        }
+    }
+    
+    if (!selected) selected = animatronics[0];
+    
+    const animElement = document.createElement('img');
+    animElement.src = selected.image;
+    animElement.className = 'animatronic';
+    animElement.style.position = 'absolute';
+    animElement.style.top = '0';
+    animElement.style.left = '0';
+    animElement.style.width = '100%';
+    animElement.style.height = '100%';
+    animElement.style.objectFit = 'cover';
+    animElement.style.zIndex = '100';
+    
+    gameScreen.appendChild(animElement);
+    currentAnimatronic = selected;
+    
+    // Время до атаки (4 секунд)
+    attackTimer = setTimeout(() => {
+        // Проверяем, что мы все еще в игре
+        if (gameScreen.style.display === 'block') {
+            triggerScreamer();
+        }
+    }, 4000);
+    
+    // Следующее появление аниматроника через 15-120 секунд
+    const nextSpawnTime = Math.random() * 105000 + 15000; // от 15 до 120 секунд
+    animatronicTimer = setTimeout(() => {
+        // Проверяем, что мы все еще в игре
+        if (gameScreen.style.display === 'block') {
+            spawnAnimatronic();
+        }
+    }, nextSpawnTime);
+}
+
+function triggerScreamer() {
+    // Проверяем, что мы все еще в игре
+    if (gameScreen.style.display !== 'block' || !currentAnimatronic) return;
+    
+    // Останавливаем звук безопасной зоны, если он играет
+    const savezoneSound = document.getElementById('savezoneSound');
+    savezoneSound.pause();
+    savezoneSound.currentTime = 0;
+    
+    // Останавливаем музыку камеры, если она играет
+    musicBoxSound.pause();
+    musicBoxSound.currentTime = 0;
+    
+    const animElement = document.querySelector('.animatronic');
+    if (animElement) animElement.remove();
+    
+    const screamer = document.createElement('img');
+    screamer.src = currentAnimatronic.screamer;
+    screamer.className = 'screamer';
+    screamer.style.position = 'absolute';
+    screamer.style.top = '0';
+    screamer.style.left = '0';
+    screamer.style.width = '100%';
+    screamer.style.height = '100%';
+    screamer.style.objectFit = 'cover';
+    screamer.style.zIndex = '1000';
+    
+    gameScreen.appendChild(screamer);
+    
+    screamerSound.currentTime = 0;
+    screamerSound.play().catch(e => console.log("Не удалось воспроизвести звук скримера:", e));
+    
+    // Очищаем все таймеры
+    if (animatronicTimer) clearTimeout(animatronicTimer);
+    if (attackTimer) clearTimeout(attackTimer);
+    if (closetTimer) clearTimeout(closetTimer);
+    
+    // Очищаем интервалы
+    if (currentNight) {
+        if (currentNight.hourInterval) clearInterval(currentNight.hourInterval);
+        if (currentNight.randomSoundInterval) clearInterval(currentNight.randomSoundInterval);
+    }
+    
+    setTimeout(() => {
+        gameScreen.style.display = 'none';
+        nightsMenu.style.display = 'flex';
+        nightsMenu.style.opacity = '1';
+        
+        // Восстанавливаем фон меню
+        body.style.backgroundImage = "url('menu.gif')";
+        body.classList.remove('night-mode');
+        
+        const existingScreamer = document.querySelector('.screamer');
+        if (existingScreamer) existingScreamer.remove();
+        
+        // Останавливаем все звуки игры
+        officeSound.pause();
+        officeSound.currentTime = 0;
+        
+        // Включаем музыку меню
+        menuSound.play().catch(e => console.log("Не удалось воспроизвести музыку меню:", e));
+        
+        // Сбрасываем состояние шкафа
+        isInCloset = false;
+        if (buttonContainer && closetBtn) {
+            closetBtn.textContent = 'Спрятаться в шкафу';
+        }
+        if (buttonContainer && cameraBtn) {
+            cameraBtn.style.display = 'block';
+            cameraBtn.textContent = 'Посмотреть камеру';
+        }
+        
+        // Сбрасываем механику марионетки
+        resetPuppetMechanic();
+    }, 1500);
+}
+
+function clearProgress() {
+    // Очищаем LocalStorage
+    localStorage.removeItem('fnafProgress');
+    
+    // Сбрасываем переменную прогресса
+    progress = 1;
+    
+    // Обновляем все кнопки ночей
+    const nightButtons = document.querySelectorAll('.night-btn');
+    nightButtons.forEach((btn, index) => {
+        if (index === 0) { // Первая ночь всегда доступна
+            btn.classList.remove('locked');
+            btn.classList.add('available');
+            btn.innerHTML = `
+                <div class="night-number">1</div>
+                <div class="night-title">НОЧЬ 1</div>
+            `;
+            btn.addEventListener('click', function() {
+                startNight(1);
+            });
+        } else { // Остальные ночи блокируем
+            btn.classList.remove('available');
+            btn.classList.add('locked');
+            btn.innerHTML = `
+                <div class="night-number">${index + 1}</div>
+                <div class="night-title">НОЧЬ ${index + 1}</div>
+            `;
+            // Удаляем обработчики кликов для заблокированных ночей
+            btn.onclick = null;
+            btn.addEventListener('click', function() {
+                // Можно добавить звук "заблокировано" или другой эффект
+            });
+        }
+    });
+    
+    // Воспроизводим звук очистки (можно использовать существующий clickSound)
+    clickSound.currentTime = 0;
+    clickSound.play().catch(e => console.log("Не удалось воспроизвести звук:", e));
+}
+
+        function completeNight(nightNumber) {
+    resetPuppetMechanic();
+    // Очищаем все таймеры
+    if (animatronicTimer) clearTimeout(animatronicTimer);
+    if (attackTimer) clearTimeout(attackTimer);
+    if (closetTimer) clearTimeout(closetTimer);
+
+    // Очищаем интервал часов
+    if (currentNight && currentNight.hourInterval) {
+        clearInterval(currentNight.hourInterval);
+    }
+
+    // Очищаем интервал случайных звуков
+    if (currentNight && currentNight.randomSoundInterval) {
+        clearInterval(currentNight.randomSoundInterval);
+    }
+
+    // Удаляем все аниматроники и скримеры
+    const existingAnim = document.querySelector('.animatronic');
+    if (existingAnim) existingAnim.remove();
+    const existingScreamer = document.querySelector('.screamer');
+    if (existingScreamer) existingScreamer.remove();
+
+    // Останавливаем звук безопасной зоны
+    const savezoneSound = document.getElementById('savezoneSound');
+    savezoneSound.pause();
+    savezoneSound.currentTime = 0;
+
+    // Останавливаем музыку камеры
+    musicBoxSound.pause();
+    musicBoxSound.currentTime = 0;
+
+    // Обновляем прогресс, если ночь пройдена
+    if (nightNumber >= progress) {
+        progress = nightNumber + 1;
+        localStorage.setItem('fnafProgress', progress);
+        
+        // Обновляем кнопки ночей
+        const nightButtons = document.querySelectorAll('.night-btn');
+        nightButtons.forEach((btn, index) => {
+            if (index + 1 <= progress) {
+                btn.classList.remove('locked');
+                btn.classList.add('available');
+                btn.innerHTML = `
+                    <div class="night-number">${index + 1}</div>
+                    <div class="night-title">НОЧЬ ${index + 1}</div>
+                `;
+                btn.addEventListener('click', function() {
+                    startNight(index + 1);
+                });
+            }
+        });
+    }
+    
+    // Создаем и показываем гифку победы
+    const winGif = document.createElement('div');
+    winGif.style.position = 'fixed';
+    winGif.style.top = '0';
+    winGif.style.left = '0';
+    winGif.style.width = '100%';
+    winGif.style.height = '100%';
+    winGif.style.backgroundImage = `url('${WIN_GIFS[nightNumber]}')`;
+    winGif.style.backgroundSize = 'cover';
+    winGif.style.backgroundPosition = 'center';
+    winGif.style.zIndex = '2000';
+    document.body.appendChild(winGif);
+    
+    // Через 20 секунд убираем гифку и показываем меню
+    setTimeout(() => {
+        winGif.remove();
+        
+        // Восстанавливаем фон меню
+        body.style.backgroundImage = "url('menu.gif')";
+        body.classList.remove('night-mode');
+        
+        // Останавливаем звуки офиса
+        officeSound.pause();
+        officeSound.currentTime = 0;
+        
+        // Показываем меню выбора ночи
+        gameScreen.style.display = 'none';
+        nightsMenu.style.display = 'flex';
+        nightsMenu.style.opacity = '1';
+        
+        // Включаем музыку меню
+        menuSound.play().catch(e => console.log("Не удалось воспроизвести музыку меню:", e));
+        
+        // Сбрасываем состояние шкафа
+        isInCloset = false;
+        if (buttonContainer && closetBtn) {
+            closetBtn.textContent = 'Спрятаться в шкафу';
+        }
+        if (buttonContainer && cameraBtn) {
+            cameraBtn.style.display = 'block';
+        }
+    }, 15000);
+}
+
+        aboutBtn.addEventListener('click', function() {
+            aboutOverlay.style.display = 'flex';
+        });
+
+        closeBtn.addEventListener('click', function() {
+            aboutOverlay.style.display = 'none';
+        });
+
+        aboutOverlay.addEventListener('click', function(e) {
+            if (e.target === aboutOverlay) {
+                aboutOverlay.style.display = 'none';
+            }
+        });
+    });
+</script>
+</body>
+</html>
